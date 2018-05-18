@@ -32,7 +32,7 @@ This algorithim creates a dungeon by partitioning space out, then creating rooms
  # Agent-Based Algorithim
 This algorithim randomly carves out corridors and rooms. It is quite random and more difficult to gurantee a good dungeon. However, this unpredicatiblity can in theory create some interesting dungeons.
 
-# Findings
+## Findings
 1. A grid based system to store the cells is quite convienient and constrains the size of the dungeon to the maximum size provided by the user. Morover, adding cells only when nessesary works well, as opposed to creating them all at once as empty cells.
 
 2. Earlier in this algorithm, the rooms were built around a center point from the corridor
@@ -45,5 +45,5 @@ half of it inaccessable.
 So, because of these faults (mainly #2), the algorithim was changed so the room would absorb the corridors as the room
 was built overtop of it.
 
-# Future Ideas
+## Future Ideas
 The Logic of the BSP algorithim seems far more controllable, but can limit the shape of the dungeons. Thus, to combine the best of both worlds, a hybrid method could be ideal. Following the logic of the BSP, after creating the rooms as rectangles, variation could be added by randomly adding onto the rooms from the outside, or carving them out from the inside to create sub-rooms.
