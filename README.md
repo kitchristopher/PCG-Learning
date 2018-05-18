@@ -5,10 +5,7 @@ This project is a study on various Procedural Content Generators for games.
 This project contains the entire project for Unity, so to install just drag the folder into your liking. That said, really only the scripts are needed. The level and prefabs can be created easily.
 
 ## Learning Outcome
-To further my knowledge on these techniques, develop better programming practices and object oriented principles, and find an ideal algorithim to further my focus in.
-
-# The Binary Space Partition Algorithim
-This algorithim creates a dungeon by partitioning space out, then creating rooms in each of these spaces, then lastly connecting the rooms to one another with corridors. Furthermore, this algorithim was designed to function decoupled from Unity as well, so for instance it could be used to generate classic ascii art in a console.
+To further my knowledge on these techniques, develop better programming practices and object oriented principles, and find an ideal algorithim to further my focus in. Furthermore, these algorithims were designed to function decoupled from Unity as well, so for instance they could be used to generate classic ascii art in a console.
 
 ## Usage
 If you are not using the existing project then you will need to set the scripts up again as follows: 
@@ -16,6 +13,9 @@ If you are not using the existing project then you will need to set the scripts 
 * Next, assign prefabs of your liking for the three tile types.
 * Lastly, set the sizes for the dungeon width, height, minimum room area, and minimum corridor area.
   * These values can be any positive number as long as the area of the dungeon is greater than the minimum room area and minimum corridor area.
+
+# The Binary Space Partition Algorithim
+This algorithim creates a dungeon by partitioning space out, then creating rooms in each of these spaces, then lastly connecting the rooms to one another with corridors. 
 
 ## Final Thoughts 
 * Overall, the dungeons created with this algorithim look interesting. 
@@ -28,3 +28,22 @@ If you are not using the existing project then you will need to set the scripts 
   * This would also decreases memory requirements since unused cells wouldn't be created.
   * However, this could create some issues later on if for whatever reason you needed to still have the unused cells in the game, perhaps as dirt or for something interactive.
  * The recursive functions could be made somewhat cleaner to better keep the *Single Responsibility Principle*.
+ 
+ # Agent-Based Algorithim
+This algorithim randomly carves out corridors and rooms. It is quite random and more difficult to gurantee a good dungeon. However, this unpredicatiblity can in theory create some interesting dungeons.
+
+# Findings
+1. A grid based system to store the cells is quite convienient and constrains the size of the dungeon to the maximum size provided by the user. Morover, adding cells only when nessesary works well, as opposed to creating them all at once as empty cells.
+
+2. Earlier in this algorithm, the rooms were built around a center point from the corridor
+This had the awesome effect of creating sub-rooms within the room, but alas two problems presented themselves:
+   * First, corridors were not designed to be rooms. It would be strange to see a hallway as a room. In order to maximize
+this, a seprate room class would have been needed and would be a good future implementation.
+   * Second, since the corridors could be in the middle of the room, sometimes the room would get cut in half, making
+half of it inaccessable.
+
+So, because of these faults (mainly #2), the algorithim was changed so the room would absorb the corridors as the room
+was built overtop of it.
+
+# Future Ideas
+The Logic of the BSP algorithim seems far more controllable, but can limit the shape of the dungeons. Thus, to combine the best of both worlds, a hybrid method could be ideal. Following the logic of the BSP, after creating the rooms as rectangles, variation could be added by randomly adding onto the rooms from the outside, or carving them out from the inside to create sub-rooms.
