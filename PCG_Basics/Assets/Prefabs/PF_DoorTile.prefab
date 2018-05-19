@@ -22,9 +22,9 @@ GameObject:
   - component: {fileID: 33899657312592892}
   - component: {fileID: 65091269290692970}
   - component: {fileID: 23712167140586810}
-  - component: {fileID: 114866345602017920}
+  - component: {fileID: 114250301999110968}
   m_Layer: 0
-  m_Name: PF_WallTile
+  m_Name: PF_DoorTile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -57,7 +57,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_Materials:
-  - {fileID: 2100000, guid: 748a83b0f8cfcf1489177325a8b88892, type: 2}
+  - {fileID: 2100000, guid: 24656d7dc33fef14eb5065ce647245de, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -96,7 +96,7 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &114866345602017920
+--- !u!114 &114250301999110968
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
