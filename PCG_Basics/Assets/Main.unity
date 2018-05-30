@@ -646,7 +646,9 @@ MonoBehaviour:
     type: 2}
   _Prefab_Door: {fileID: 1053830827474522, guid: e9e08f1d72017b44cad78c6b55004fd9,
     type: 2}
-  generationType: 0
+  _Prefab_Rock: {fileID: 1201303975606616, guid: bbb71cbdb10791744a35593cb76b07a9,
+    type: 2}
+  generationType: 2
   width: 50
   height: 50
   minArea: 5
@@ -656,6 +658,10 @@ MonoBehaviour:
   minCorridorLength: 8
   corridorChangeChance: 80
   baseBacktrackCount: 12
+  rockPercentage: 50
+  rockThreshold: 5
+  automataGenerations: 5
+  neighborhoodType: 0
 --- !u!4 &2132189880
 Transform:
   m_ObjectHideFlags: 0

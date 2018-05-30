@@ -8,8 +8,8 @@ using PCG;
 /// </summary>
 public class Generate_Dungeon : MonoBehaviour
 {
-    [SerializeField] private GameObject _Prefab_Floor, _Prefab_Wall, _Prefab_Corridor, _Prefab_Door;//The prefabs used to create the dungeon cells
-    public enum Generation_Types { BSP, Agent };//Which algorithim to use
+    [SerializeField] private GameObject _Prefab_Floor, _Prefab_Wall, _Prefab_Corridor, _Prefab_Door, _Prefab_Rock;//The prefabs used to create the dungeon cells
+    public enum Generation_Types { BSP, Agent, CellularAutomata };//Which algorithim to use
 
     [Tooltip("The selected PCG Algorithim.")] public Generation_Types generationType;
 
@@ -26,6 +26,13 @@ public class Generate_Dungeon : MonoBehaviour
     [Tooltip("How many total times the algorithm will keep trying " +
         "to build after a unsuccesful attempt.")]
     public int baseBacktrackCount;
+
+    //Variables for Cellular Automata
+    public int rockPercentage = 50;
+    public int rockThreshold = 5;
+    public int automataGenerations = 5;
+    public bool shouldConnectAreas = true;
+    public PCG.PCG_CellularAutomata.NeighborhoodType neighborhoodType;
 
 
     private GameObject _Cell_Holder;//A transform to store all of the rooms
@@ -49,6 +56,10 @@ public class Generate_Dungeon : MonoBehaviour
 
         switch (generationType)
         {
+            case Generation_Types.CellularAutomata:
+                result = PCG_CellularAutomata.Generate_Dungeon(width, height, rockPercentage, rockThreshold, automataGenerations, minArea,
+                    minCorridorArea,neighborhoodType, shouldConnectAreas);
+                break;
             case Generation_Types.Agent:
                 result = PCG_AgentBased.Generate_Dungeon(width, height, minArea, maxArea,
                     minCorridorArea, minCorridorLength, maxCorridorLength, corridorChangeChance, baseBacktrackCount);
@@ -89,6 +100,8 @@ public class Generate_Dungeon : MonoBehaviour
                     tile = Instantiate(_Prefab_Wall, transform.position + offset, Quaternion.identity, roomHolder.transform) as GameObject;
                 else if (cell.Cell_Type == Cell.CellType.Door)
                     tile = Instantiate(_Prefab_Door, transform.position + offset, Quaternion.identity, roomHolder.transform) as GameObject;
+                else if (cell.Cell_Type == Cell.CellType.Rock)
+                    tile = Instantiate(_Prefab_Rock, transform.position + offset, Quaternion.identity, roomHolder.transform) as GameObject;
 
                 if (tile != null)
                     tile.GetComponent<Tile>().Init(cell);

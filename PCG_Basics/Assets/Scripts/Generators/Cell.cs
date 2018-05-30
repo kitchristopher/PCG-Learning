@@ -7,7 +7,7 @@ namespace PCG
     /// </summary>
     public class Cell
     {
-        public enum CellType { Empty, Wall, Floor, Corridor, Door };//a classification method to represent what this cell is in the dungeon
+        public enum CellType { Empty, Wall, Floor, Corridor, Door, Rock };//a classification method to represent what this cell is in the dungeon
 
         public Room room;//The room this cell lies in
 
@@ -176,6 +176,22 @@ namespace PCG
                 return true;
             else
                 return false;
+        }
+
+        /// <summary>
+        /// Checks if any of this room's connected rooms have been connected to the otherRoom.
+        /// </summary>
+        /// <param name="otherRoom">The room being checked to see if it is indirectly connected to this room.</param>
+        /// <returns>Returns true if the otherRoom is connected to at least one of the this room's connected rooms.</returns>
+        public bool Is_IndirectlyConnected(Room otherRoom)
+        {
+            foreach (var connectedRoom in this.ConnectedRooms)
+            {
+                if (connectedRoom.Is_ConnectedToRoom(otherRoom))
+                    return true;
+            }
+
+            return false;
         }
 
         /// <summary>

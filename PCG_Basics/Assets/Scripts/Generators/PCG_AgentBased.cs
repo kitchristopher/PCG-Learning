@@ -34,14 +34,16 @@ namespace PCG
         public static int MinimumCorridorLength { get { return _minimumCorridorLength; } }//The minimum length a corridor can be
         public static List<Room> TotalRooms;//the corridors and rooms that contain the actual cells
 
-        private static List<Room> _roomList = new List<Room>();//just the normal rooms
-        private static List<Room> _corridorList = new List<Room>();//just the corridors
+        private static List<Room> _roomList;//just the normal rooms
+        private static List<Room> _corridorList;//just the corridors
 
         private static Cell[,] _grid; public static Cell[,] Grid { get { return _grid; } }//each cell represented in a relative position 
 
         public static List<Room> Generate_Dungeon(int width, int height, int minArea, int maxArea, int minCorridorArea, int minCorridorLength, int maxCorridorLength, int directionChangeChance, int baseBacktrackCount)
         {
             TotalRooms = new List<Room>();
+            _roomList = new List<Room>();
+            _corridorList = new List<Room>();
 
             if (!Utilities.PCG_Exceptions.Is_ValidInput_Exception(width, height, minArea, minCorridorArea))
                 return null;
@@ -56,7 +58,6 @@ namespace PCG
             _corridorDirectionChangeIncrement = directionChangeChance;
             _grid = new Cell[_width, _height];
 
-            //Make Function, return the cell
             //Choose random starting point within the area
             int Xpos = 0;
             int Ypos = Utility.RNDG.Next(0, _height);
@@ -127,7 +128,7 @@ namespace PCG
 
             //Build the room
             List<Cell> roomCells = new List<Cell>();
-            Fill_Room(startingCell, roomCells, Cell.CellType.Floor, width, height);
+            Utility.Fill_Room(_grid, startingCell, roomCells, Cell.CellType.Floor, width, height);
 
             return roomCells.Count > 0 ? new Room(roomCells, Room.RoomType.Room, "Room") : null;// no cells in the room indicates a failed creation
         }
@@ -219,7 +220,7 @@ namespace PCG
             //Fill in the area around each cell in the corridor
             int initalLength = roomCells.Count;
             for (int i = 0; i < initalLength; i++)//iterate through the inital cells and fill around them, adding the fill cells to the same list
-                Fill_Room(roomCells[i], roomCells, Cell.CellType.Corridor, _minimumCorridorArea, _minimumCorridorArea);
+                Utility.Fill_Room(_grid,roomCells[i], roomCells, Cell.CellType.Corridor, _minimumCorridorArea, _minimumCorridorArea);
 
             return roomCells.Count > 0 ? new Room(roomCells, Room.RoomType.Corridor, "Corridor") : null;// no cells in the room indicates a failed creation
         }
@@ -292,40 +293,6 @@ namespace PCG
         }
 
         /// <summary>
-        /// Fills out an area from a centre point and places a new cell in the area. Existing corridors are added to the new fill area.
-        /// </summary>
-        /// <param name="startingCell">The centre point of the area.</param>
-        /// <param name="cellsInRoom">Outputs all of the new cells into this List of Cells.</param>
-        /// <param name="fillType">The type of cell to create the new cells as.</param>
-        /// <param name="width">The width of the area.</param>
-        /// <param name="height">The height of the area.</param>
-        private static void Fill_Room(Cell startingCell, List<Cell> cellsInRoom, Cell.CellType fillType, int width, int height)
-        {
-            int offsetX, offsetY;
-            Get_RoomCentreOffsets(startingCell, width, height, out offsetX, out offsetY);
-
-            for (int x = offsetX; x < offsetX + width; x++)
-            {
-                for (int y = offsetY; y < offsetY + height; y++)
-                {
-                    if (_grid[x, y] == null)//only fill if the tile doesnt exist
-                    {
-                        Cell newCell = new Cell(x, y, _grid);
-                        newCell.Cell_Type = fillType;
-                        cellsInRoom.Add(newCell);//add each filled cell to the room
-                        _grid[x, y] = newCell;
-                    }
-                    else if (_grid[x, y].Cell_Type == Cell.CellType.Corridor && !cellsInRoom.Contains(_grid[x, y]))//if its a corridor, then take it over
-                    {
-                        _grid[x, y].Cell_Type = fillType;
-                        _grid[x, y].room.Remove_CellFromRoom(_grid[x, y]);
-                        cellsInRoom.Add(_grid[x, y]);
-                    }
-                }
-            }
-        }
-
-        /// <summary>
         /// Checks if a given central cell has enough empty space or corridors around it to create a room.
         /// </summary>
         /// <param name="cellToTry">The centre cell.</param>
@@ -335,7 +302,7 @@ namespace PCG
         private static bool Check_ValidRoomPlacement(Cell cellToTry, int width, int height)
         {
             int offsetX, offsetY;
-            Get_RoomCentreOffsets(cellToTry, width, height, out offsetX, out offsetY);
+            Utility.Get_RoomCentreOffsets(_grid,cellToTry, width, height, out offsetX, out offsetY);
 
             for (int x = offsetX; x < offsetX + width; x++)
             {
@@ -347,33 +314,6 @@ namespace PCG
             }
 
             return true;
-        }
-
-        /// <summary>
-        /// Given a cell and the width and height for an area, this functions outputs the X and Y offsets of the starting boundries from the left and bottom 
-        /// such that the startingCell is in the centre.
-        /// </summary>
-        /// <param name="startingCell">The centre of the offsets.</param>
-        /// <param name="width">Width of the room.</param>
-        /// <param name="height">Height of the room.</param>
-        /// <param name="offsetX">The X offset to return.</param>
-        /// <param name="offsetY">The Y offset to return.</param>
-        private static void Get_RoomCentreOffsets(Cell startingCell, int width, int height, out int offsetX, out int offsetY)
-        {
-            //Get the mid point from the starting cell to fill evenly around it
-            int roundedHalfWidth = (width / 2);
-            int roundedHalfHeight = (height / 2);
-
-            //the lowest index so we don't have negative values; just for readability
-            int lowerRange = 0;
-
-            //Take into consideration the case where the cell is right ON the boundryline and we need to build further inward
-            int upperRangeX = System.Math.Min((_grid.GetLength(0) - width), (startingCell.X - roundedHalfWidth));
-            int upperRangeY = System.Math.Min((_grid.GetLength(1) - height), (startingCell.Y - roundedHalfHeight));
-
-            //Find the proper offset values to leave enough room to ensure that the proper area is filled in
-            offsetX = System.Math.Max(lowerRange, upperRangeX);
-            offsetY = System.Math.Max(lowerRange, upperRangeY);
         }
 
         /// <summary>
@@ -458,12 +398,12 @@ namespace PCG
                     if (cell.Cell_Type == Cell.CellType.Wall && cell.AdjacentCells.Count == 4)//ensure the door is not on the boundry
                     {
                         //adjacent counts
-                        int wallCount_Adj = Get_CountOfCelltypeInRoom(Cell.CellType.Wall, cell.AdjacentCells, ((x) => true));
-                        int floorCount_Adj = Get_CountOfCelltypeInRoom(Cell.CellType.Floor, cell.AdjacentCells, ((x) => true));
-                        int corridorCount_Adj = Get_CountOfCelltypeInRoom(Cell.CellType.Corridor, cell.AdjacentCells, ((x) => true));
-                        int emptyCount_Adj = Get_CountOfCelltypeInRoom(Cell.CellType.Empty, cell.AdjacentCells, ((x) => true));
+                        int wallCount_Adj = Utility.Get_CountOfCelltypeInRoom(Cell.CellType.Wall, cell.AdjacentCells, ((x) => true));
+                        int floorCount_Adj = Utility.Get_CountOfCelltypeInRoom(Cell.CellType.Floor, cell.AdjacentCells, ((x) => true));
+                        int corridorCount_Adj = Utility.Get_CountOfCelltypeInRoom(Cell.CellType.Corridor, cell.AdjacentCells, ((x) => true));
+                        int emptyCount_Adj = Utility.Get_CountOfCelltypeInRoom(Cell.CellType.Empty, cell.AdjacentCells, ((x) => true));
 
-                        int doorCount_Diagonal = Get_CountOfCelltypeInRoom(Cell.CellType.Door, cell.DiagonalCells, ((x) => true));
+                        int doorCount_Diagonal = Utility.Get_CountOfCelltypeInRoom(Cell.CellType.Door, cell.DiagonalCells, ((x) => true));
 
                         foreach (var adjacent in cell.AdjacentCells)
                         {
@@ -509,11 +449,11 @@ namespace PCG
                         if (!cell.room.Is_ConnectedToRoom(adjacentCell.room))
                         {
                             if (cell.AdjacentCells.Count == 4 && cell.room.Room_Type == Room.RoomType.Room && cell.Cell_Type == Cell.CellType.Wall &&  //if im a room wall,
-                                Get_CountOfCelltypeInRoom(Cell.CellType.Wall, cell.AdjacentCells, ((x) => x.room == cell.room)) == 2 && //and have 2 wall adjacents from the same room,
-                                (Get_CountOfCelltypeInRoom(Cell.CellType.Wall, cell.AdjacentCells, ((x) => x.room.Room_Type == Room.RoomType.Corridor)) == 1//and only 1 corridor wall adjacent
-                                || Get_CountOfCelltypeInRoom(Cell.CellType.Wall, cell.DiagonalCells, ((x) => x.room.Room_Type == Room.RoomType.Corridor)) == 1))
+                                Utility.Get_CountOfCelltypeInRoom(Cell.CellType.Wall, cell.AdjacentCells, ((x) => x.room == cell.room)) == 2 && //and have 2 wall adjacents from the same room,
+                                (Utility.Get_CountOfCelltypeInRoom(Cell.CellType.Wall, cell.AdjacentCells, ((x) => x.room.Room_Type == Room.RoomType.Corridor)) == 1//and only 1 corridor wall adjacent
+                                || Utility.Get_CountOfCelltypeInRoom(Cell.CellType.Wall, cell.DiagonalCells, ((x) => x.room.Room_Type == Room.RoomType.Corridor)) == 1))
                             {
-                                if (Get_CountOfCelltypeInRoom(Cell.CellType.Corridor, cell.AdjacentCells, ((x) => x.room.Room_Type == Room.RoomType.Corridor)) == 1)
+                                if (Utility.Get_CountOfCelltypeInRoom(Cell.CellType.Corridor, cell.AdjacentCells, ((x) => x.room.Room_Type == Room.RoomType.Corridor)) == 1)
                                     newDoorCells.Add(cell);
                                 else
                                     newFloorCells.Add(cell);
@@ -522,8 +462,8 @@ namespace PCG
                         }
                     }
 
-                    int wallCount_Adj = Get_CountOfCelltypeInRoom(Cell.CellType.Wall, cell.AdjacentCells, ((x) => true));
-                    int wallCount_Dia = Get_CountOfCelltypeInRoom(Cell.CellType.Wall, cell.DiagonalCells, ((x) => true));
+                    int wallCount_Adj = Utility.Get_CountOfCelltypeInRoom(Cell.CellType.Wall, cell.AdjacentCells, ((x) => true));
+                    int wallCount_Dia = Utility.Get_CountOfCelltypeInRoom(Cell.CellType.Wall, cell.DiagonalCells, ((x) => true));
 
                     //Case 2: Walls that are over 1 unit in thickness.
                     //cell is on the outside boundry and neighbored by walls, orCell is surrounded by walls
@@ -552,28 +492,6 @@ namespace PCG
             {
                 cell.Cell_Type = Cell.CellType.Door;
             }
-        }
-
-        /// <summary>
-        /// Returns the number of cells in a list that match the given CellType and pass an input function.
-        /// </summary>
-        /// <param name="cellType"></param>
-        /// <param name="adjacentCells"></param>
-        /// <param name="filter">A function that takes a cell and returns a bool if that cell passes the function.</param>
-        /// <returns></returns>
-        private static int Get_CountOfCelltypeInRoom(Cell.CellType cellType, List<Cell> adjacentCells, Func<Cell, bool> filter)
-        {
-            int count = 0;
-
-            foreach (var cell in adjacentCells)
-            {
-                if (cell.Cell_Type == cellType && filter(cell))
-                {
-                    ++count;
-                }
-            }
-
-            return count;
         }
 
     }

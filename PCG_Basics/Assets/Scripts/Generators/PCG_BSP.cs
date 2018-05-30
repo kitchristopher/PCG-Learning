@@ -304,8 +304,6 @@ namespace PCG
             //Keep weaving from point 1 until we reach point 2
             do
             {
-                Cell currentCell = PCG_BSP.Grid[leftRoomPointX, leftRoomPointY];
-
                 if ((leftRoomPointX - rightRoomPointX) != 0)//Go horizontal
                     leftRoomPointX += XDirection;
                 if ((leftRoomPointY - rightRoomPointY) != 0)//Go vertical
