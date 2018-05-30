@@ -55,3 +55,4 @@ This algorithm creates a cave system based on cellular automata, that is the cav
 1. It would be good to create more flexibility for neighborhood creation, such as depth.
 2. A more advanced transition rule instead of only a rock threshold would improve the look of the cave.
 3. A better system of connecting rooms should be researched.
+4. Converting the entire cave system into a mesh would likely be more efficent. Since The rock cells are instansiated, there are a vast number of meshes that are created but not really used, in contrast to the other algorithims that leave empty space in untraversable areas.
