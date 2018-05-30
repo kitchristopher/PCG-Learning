@@ -47,3 +47,11 @@ was built overtop of it.
 
 ## Future Ideas
 The Logic of the BSP algorithim seems far more controllable, but can limit the shape of the dungeons. Thus, to combine the best of both worlds, a hybrid method could be ideal. Following the logic of the BSP, after creating the rooms as rectangles, variation could be added by randomly adding onto the rooms from the outside, or carving them out from the inside to create sub-rooms.
+
+# Cellular Automata
+This algorithm creates a cave system based on cellular automata, that is the caves are iterativly generated based on the neighbors that each cell has. This creates very organic looking shapes, however it is more difficult to control.
+
+## Findings
+1. It would be good to create more flexibility for neighborhood creation, such as depth.
+2. A more advanced transition rule instead of only a rock threshold would improve the look of the cave.
+3. A better system of connecting rooms should be researched.
